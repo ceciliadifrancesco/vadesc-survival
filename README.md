@@ -1,7 +1,6 @@
 # VaDeSC: reproduction and robustness analysis
 
-Course project for CS-E4885 Machine Learning in Biomedicine (Aalto University, autumn 2026), group 4:
-Cecilia Di Francesco, Jakub Iwo Grad, Annika Karppinen.
+Course project for CS-E4885 Machine Learning in Biomedicine.
 
 We re-implement VaDeSC ([Manduchi et al., ICLR 2022](https://arxiv.org/abs/2106.05763)) in PyTorch,
 compare it with standard survival models, and look at when its clusters are stable and meaningful.
@@ -12,8 +11,6 @@ The original TensorFlow code is at [i6092467/vadesc](https://github.com/i6092467
 ```bash
 pip install -r requirements.txt
 ```
-
-A GPU is not needed.
 
 ## Data
 
