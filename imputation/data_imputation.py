@@ -6,21 +6,18 @@ in the same split as with load_support().
 
     load_support_missing(drop_post_baseline=False, seed=42)
         Encoded SUPPORT with the gaps kept and the real missingness mask.
-    load_support_imputed(path, drop_post_baseline=False)
-        Reads a VAE-imputed *_original_units.csv back into a SurvData object,
-        preprocessed exactly like load_support(), for the survival models.
+    load_support_imputed(path, drop_post_baseline=False, seed=42)
+        Reads a VAE-imputed file in the support2.csv layout and runs the team's
+        load_support() on it, so the survival models get identical preprocessing.
 """
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sksurv.util import Surv
 
 # make `src` importable when this file is used from its own folder
@@ -28,8 +25,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.append(str(_PROJECT_ROOT))
 
-from src.data import (SUPPORT_CAT, SUPPORT_DROP, SUPPORT_POST_BASELINE,  # noqa: E402
-                      SurvData, load_support_raw)
+import src.data as team_data  # noqa: E402
+from src.data import SUPPORT_DROP, SUPPORT_POST_BASELINE, load_support_raw  # noqa: E402
 
 # Binary variables, encoded as a single 0/1 column: {column: value that maps to 1}
 SUPPORT_BINARY = {"sex": "male", "diabetes": 1, "dementia": 1}
@@ -200,36 +197,15 @@ def load_support_missing(drop_post_baseline=False, seed=42):
         variables, features, X.iloc[idx_te].reset_index(drop=True))
 
 
-def load_support_imputed(path, drop_post_baseline=False):
-    """SurvData from a VAE-imputed *_original_units.csv file.
+def load_support_imputed(path, drop_post_baseline=False, seed=42):
+    """SurvData from a VAE-imputed file in the support2.csv layout (e.g. data/support2_vae_imputed.csv).
 
-    Uses the CSV's own train/valid/test split and the same preprocessing as
-    src.data.load_support, so only the imputation differs from the baseline pipeline.
+    Runs the team's src.data.load_support() unchanged, only reading `path` instead of
+    data/support2.csv. Preprocessing, features and split are therefore identical to
+    load_support(); the only difference is that the gaps were filled by the VAE.
     """
-    df = pd.read_csv(path)
-    X = df.drop(columns=["split", "time", "event"])
-    if drop_post_baseline:
-        X = X.drop(columns=[c for c in SUPPORT_POST_BASELINE if c in X])
-    for c in ["totcst", "charges", "pafi", "sod"]:
-        if c in X:
-            X[c] = np.log1p(X[c].clip(lower=0))
-    cat = [c for c in SUPPORT_CAT if c in X]
-    X[cat] = X[cat].astype(object)
-    t, e = df["time"].to_numpy(float), df["event"].to_numpy(int)
-    idx = {s: np.flatnonzero(df["split"].to_numpy() == s) for s in ("train", "valid", "test")}
-
-    num_cols = [c for c in X.columns if c not in cat]
-    pre = ColumnTransformer([
-        ("num", make_pipeline(SimpleImputer(strategy="median"), StandardScaler()), num_cols),
-        ("cat", make_pipeline(SimpleImputer(strategy="most_frequent"),
-                              OneHotEncoder(handle_unknown="ignore", sparse_output=False)), cat),
-    ]).fit(X.iloc[idx["train"]])
-
-    def transform(i):
-        return pre.transform(X.iloc[i]).astype(np.float32)
-
-    tr, va, te = idx["train"], idx["valid"], idx["test"]
-    return SurvData("SUPPORT (VAE-imputed)", transform(tr), transform(va), transform(te),
-                    t[tr], t[va], t[te], e[tr], e[va], e[te],
-                    [f.split("__")[1] for f in pre.get_feature_names_out()],
-                    X.iloc[te].reset_index(drop=True))
+    raw = pd.read_csv(path, index_col=0)
+    with mock.patch.object(team_data, "load_support_raw", lambda: raw.copy()):
+        data = team_data.load_support(drop_post_baseline=drop_post_baseline, seed=seed)
+    data.name += " (VAE-imputed)"
+    return data
