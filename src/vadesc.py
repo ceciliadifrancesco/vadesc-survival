@@ -16,18 +16,40 @@ from sksurv.metrics import concordance_index_censored
 from .metrics import logrank_chi2, survival_metrics
 
 LOG2PI = math.log(2 * math.pi)
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+if torch.cuda.is_available():
+    DEVICE = "cuda"
+elif torch.backends.mps.is_available():
+    DEVICE = "mps"
+else:
+    DEVICE = "cpu"
 
 
 class VaDeSC(nn.Module):
     def __init__(self, d_in, d_lat=16, K=4, dist="weibull", weibull_k=2.0, survival=True):
         super().__init__()
         self.K, self.dist, self.k, self.survival = K, dist, weibull_k, survival
-        self.enc = nn.Sequential(nn.Linear(d_in, 50), nn.ReLU(), nn.Linear(50, 100), nn.ReLU())
-        self.enc_mu = nn.Linear(100, d_lat)
-        self.enc_logvar = nn.Linear(100, d_lat)
-        self.dec = nn.Sequential(nn.Linear(d_lat, 100), nn.ReLU(), nn.Linear(100, 50), nn.ReLU(),
-                                 nn.Linear(50, d_in))
+        # Match official networks.py: Encoder_small/Decoder_small if d_in <= 100
+        # (SUPPORT), else wide Encoder/Decoder (sim, p=1000).
+        if d_in <= 100:
+            self.enc = nn.Sequential(nn.Linear(d_in, 50), nn.ReLU(), nn.Linear(50, 100), nn.ReLU())
+            self.enc_mu = nn.Linear(100, d_lat)
+            self.enc_logvar = nn.Linear(100, d_lat)
+            self.dec = nn.Sequential(nn.Linear(d_lat, 100), nn.ReLU(), nn.Linear(100, 50), nn.ReLU(),
+                                     nn.Linear(50, d_in))
+        else:
+            self.enc = nn.Sequential(
+                nn.Linear(d_in, 500), nn.ReLU(),
+                nn.Linear(500, 500), nn.ReLU(),
+                nn.Linear(500, 2000), nn.ReLU(),
+            )
+            self.enc_mu = nn.Linear(2000, d_lat)
+            self.enc_logvar = nn.Linear(2000, d_lat)
+            self.dec = nn.Sequential(
+                nn.Linear(d_lat, 2000), nn.ReLU(),
+                nn.Linear(2000, 500), nn.ReLU(),
+                nn.Linear(500, 500), nn.ReLU(),
+                nn.Linear(500, d_in),
+            )
         # GMM prior p(c) p(z|c)
         self.prior_logits = nn.Parameter(torch.zeros(K))
         self.c_mu = nn.Parameter(torch.randn(K, d_lat) * 0.1)
@@ -83,7 +105,7 @@ class VaDeSC(nn.Module):
 
     @torch.no_grad()
     def predict(self, x):
-        """Latent means and p(c | z). Survival time is unknown at test time."""
+        """Latent means and p(c | z). Survival time is unknown at test time (paper: w/o t)."""
         mu, _ = self.encode(x)
         return mu, (self.log_prior() + self.log_p_z_c(mu)).softmax(-1)
 
@@ -164,15 +186,27 @@ def train_vadesc(d, K=4, d_lat=16, dist="weibull", weibull_k=2.0, survival=True,
             model.eval()
             risk_va = model.risk_score(tensor(d.X_va)).cpu().numpy()
             c_va = concordance_index_censored(d.e_va.astype(bool), d.t_va, risk_va)[0]
-            history.append({"epoch": ep, "train_loss": total / n, "val_C": c_va})
+            row = {"epoch": ep, "train_loss": total / n, "val_C": c_va}
+            if getattr(d, "clusters_true_te", None) is not None:
+                from sklearn.metrics import adjusted_rand_score
+                _, gamma = model.predict(tensor(d.X_te))
+                row["ARI"] = adjusted_rand_score(d.clusters_true_te, gamma.argmax(1).cpu().numpy())
+            history.append(row)
             if verbose:
-                print(f"epoch {ep:4d} | -ELBO {total / n:9.3f} | val C-index {c_va:.3f}")
+                msg = f"epoch {ep:4d} | -ELBO {total / n:9.3f} | val C-index {c_va:.3f}"
+                if "ARI" in row:
+                    msg += f" | ARI {row['ARI']:.3f}"
+                print(msg, flush=True)
     model.history = pd.DataFrame(history)
     return model
 
 
 def evaluate_vadesc(model, d):
-    """Returns (metrics, test-set cluster labels, test-set latent means)."""
+    """Returns (metrics, test-set cluster labels, test-set latent means).
+
+    Cluster labels use p(c | z) only (paper: Test w/o t). When true labels exist,
+    also adds ARI vs ``d.clusters_true_te``.
+    """
     model.eval()
     X = tensor(d.X_te)
     risk = model.risk_score(X).cpu().numpy()
@@ -181,4 +215,7 @@ def evaluate_vadesc(model, d):
     z, gamma = model.predict(X)
     clusters = gamma.argmax(1).cpu().numpy()
     metrics["log-rank chi2"] = logrank_chi2(d, clusters)
+    if getattr(d, "clusters_true_te", None) is not None:
+        from sklearn.metrics import adjusted_rand_score
+        metrics["ARI"] = adjusted_rand_score(d.clusters_true_te, clusters)
     return metrics, clusters, z.cpu().numpy()
