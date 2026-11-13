@@ -25,8 +25,15 @@ src/
   vadesc.py     model and training
   baselines.py  Cox PH, random survival forest, Weibull AFT
   metrics.py    C-index, integrated Brier score, log-rank test
+  simulate.py   synthetic data (port of the official simulation code)
+imputation/
+  data_imputation.py  VAE imputation of SUPPORT
 notebooks/
-  01_vadesc_support.ipynb
+  01_vadesc_support.ipynb                     VaDeSC and baselines on SUPPORT
+  02_simulated_benchmark.ipynb                simulated data, one seed
+  03_simulated_benchmark_multi.ipynb          simulated data, 5 seeds
+  04_vae_support_imputation.ipynb             VAE imputation of SUPPORT
+  05_vae_vadesc_on_VAE_imputed_support.ipynb  VaDeSC on VAE-imputed SUPPORT
 ```
 
 Run notebooks from the `notebooks/` folder.
