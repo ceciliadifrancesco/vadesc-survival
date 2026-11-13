@@ -37,6 +37,10 @@ class SurvData:
     e_te: np.ndarray
     features: list
     raw_te: pd.DataFrame  # unprocessed test rows, for interpreting clusters
+    # True cluster labels (simulated data only); None for clinical datasets.
+    clusters_true_tr: np.ndarray | None = None
+    clusters_true_va: np.ndarray | None = None
+    clusters_true_te: np.ndarray | None = None
 
     @property
     def y_tr(self):
@@ -103,3 +107,73 @@ def load_sksurv(name, seed=42):
     X[cat] = X[cat].astype(object)
     return make_splits(X.reset_index(drop=True), y[time_field].astype(float),
                        y[event_field].astype(int), cat, name, seed)
+
+
+def load_simulated(
+    n=60000,
+    p=1000,
+    k=3,
+    d_lat=16,
+    p_cens=0.3,
+    seed=42,
+    test_size=0.2,
+    val_size=0.1,
+    **sim_kwargs,
+):
+    """VaDeSC nonlinear simulation, with true cluster labels on SurvData.
+    """
+    from .simulate import simulate_nonlin_profile_surv
+
+    X, t, e, c, *_ = simulate_nonlin_profile_surv(
+        p=p,
+        n=n,
+        k=k,
+        latent_dim=d_lat,
+        p_cens=p_cens,
+        seed=seed,
+        clust_mean=True,
+        clust_cov=True,
+        clust_coeffs=True,
+        clust_intercepts=True,
+        balanced=True,
+        weibull_k=1,
+        brange=(-10.0, 10.0),
+        isotropic=True,
+        xrange=(-0.5, 0.5),
+        **sim_kwargs,
+    )
+    t = np.asarray(t, dtype=float)
+    e = np.asarray(e, dtype=int)
+    c = np.asarray(c, dtype=int)
+
+    idx = np.arange(n)
+    idx_trva, idx_te = train_test_split(idx, test_size=test_size, stratify=e, random_state=seed)
+    idx_tr, idx_va = train_test_split(
+        idx_trva, test_size=val_size / (1 - test_size), stratify=e[idx_trva], random_state=seed
+    )
+
+    scaler = StandardScaler().fit(X[idx_tr])
+    X_tr = scaler.transform(X[idx_tr]).astype(np.float32)
+    X_va = scaler.transform(X[idx_va]).astype(np.float32)
+    X_te = scaler.transform(X[idx_te]).astype(np.float32)
+    features = [f"x{i}" for i in range(p)]
+    raw_te = pd.DataFrame(X[idx_te], columns=features)
+    raw_te["cluster"] = c[idx_te]
+
+    return SurvData(
+        name="sim",
+        X_tr=X_tr,
+        X_va=X_va,
+        X_te=X_te,
+        t_tr=t[idx_tr],
+        t_va=t[idx_va],
+        t_te=t[idx_te],
+        e_tr=e[idx_tr],
+        e_va=e[idx_va],
+        e_te=e[idx_te],
+        features=features,
+        raw_te=raw_te,
+        clusters_true_tr=c[idx_tr],
+        clusters_true_va=c[idx_va],
+        clusters_true_te=c[idx_te],
+    )
