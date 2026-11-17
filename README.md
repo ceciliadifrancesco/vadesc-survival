@@ -23,7 +23,9 @@ pip install -r requirements.txt
 src/
   data.py       loading and preprocessing
   vadesc.py     model and training
-  baselines.py  Cox PH, random survival forest, Weibull AFT
+  baselines.py  Cox PH, random survival forest, Weibull AFT, DSM
+  ssc.py        semi-supervised clustering (Bair & Tibshirani)
+  dsm/          Deep Survival Machines, official code (auton-survival, MIT)
   metrics.py    C-index, integrated Brier score, log-rank test
   simulate.py   synthetic data (port of the official simulation code)
 imputation/
@@ -34,6 +36,8 @@ notebooks/
   03_simulated_benchmark_multi.ipynb          simulated data, 5 seeds
   04_vae_support_imputation.ipynb             VAE imputation of SUPPORT
   05_vae_vadesc_on_VAE_imputed_support.ipynb  VaDeSC on VAE-imputed SUPPORT
+  08_ssc_baseline.ipynb                       semi-supervised clustering baseline
+  09_dsm_baseline.ipynb                       Deep Survival Machines baseline
 ```
 
 Run notebooks from the `notebooks/` folder.
