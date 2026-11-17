@@ -1,0 +1,4 @@
+model,mean | with post-baseline variables,mean | without post-baseline variables,std | with post-baseline variables,std | without post-baseline variables,count | with post-baseline variables,count | without post-baseline variables
+Cox PH,0.8,0.723,0.005,0.009,3,3
+RSF,0.804,0.717,0.002,0.006,3,3
+VaDeSC,0.769,0.657,0.011,0.015,9,9

@@ -1,0 +1,6 @@
+dataset,patients,variables,numeric,categorical,events (%),censored (%),median follow-up (years),median survival (years),max time (years),missing cells (%),patients with any missing (%)
+SUPPORT,9105,35,28,7,68.1,31.9,2.8,0.6,5.6,12.6,96.2
+FLChain,7874,8,4,4,27.5,72.5,12.7,,14.3,2.1,17.1
+GBSG2,686,8,5,3,43.6,56.4,4.5,4.9,7.3,0.0,0.0
+WHAS500,500,14,6,8,43.0,57.0,3.6,4.5,6.5,0.0,0.0
+Simulated (seed 0),10000,1000,1000,0,69.4,30.6,,,,0.0,0.0
