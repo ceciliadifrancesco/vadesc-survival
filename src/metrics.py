@@ -24,10 +24,12 @@ def survival_metrics(d, risk, surv_fn=None):
     out = {"C-index": concordance_index_censored(d.e_te.astype(bool), d.t_te, risk)[0]}
     if surv_fn is not None:
         times = eval_times(d)
+        # the censoring distribution is estimated on train, so test times beyond the last
+        # training time cannot be weighted; leave those few patients out of the IBS
+        keep = d.t_te < d.t_tr.max()
         try:
-            out["IBS"] = integrated_brier_score(d.y_tr, d.y_te, surv_fn(times), times)
+            out["IBS"] = integrated_brier_score(d.y_tr, d.y_te[keep], surv_fn(times)[keep], times)
         except ValueError:
-            # sksurv needs every test time inside the training censoring KM support
             out["IBS"] = np.nan
     return out
 
