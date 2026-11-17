@@ -1,0 +1,46 @@
+setup,seed,model,C-index,IBS
+official preprocessing (with post-baseline),42,Cox PH,0.857650846446947,0.10958394480515858
+official preprocessing (with post-baseline),42,Weibull AFT,0.8562257410684735,0.10859425914508551
+official preprocessing (with post-baseline),42,VaDeSC,0.8677742917554508,0.10458753070600264
+official preprocessing (with post-baseline),73,Cox PH,0.8446230913083278,0.11997197053301628
+official preprocessing (with post-baseline),73,Weibull AFT,0.8434858789107471,0.11903129814819782
+official preprocessing (with post-baseline),73,VaDeSC,0.8574946508898336,0.12334165706971262
+official preprocessing (with post-baseline),666,Cox PH,0.8374783539919796,0.12508036563908856
+official preprocessing (with post-baseline),666,Weibull AFT,0.8405629101348888,0.12331158002083842
+official preprocessing (with post-baseline),666,VaDeSC,0.8493993232774335,0.1208054804603529
+official preprocessing (with post-baseline),777,Cox PH,0.8371692129171188,0.11901642981681554
+official preprocessing (with post-baseline),777,Weibull AFT,0.8336992086493482,0.11910829525494028
+official preprocessing (with post-baseline),777,VaDeSC,0.8505499287310216,0.12347410494076852
+official preprocessing (with post-baseline),1009,Cox PH,0.8426366414810669,0.12137930674789615
+official preprocessing (with post-baseline),1009,Weibull AFT,0.8439123826455305,0.11982128366351294
+official preprocessing (with post-baseline),1009,VaDeSC,0.8580223542774367,0.11712351382370213
+our preprocessing (with post-baseline),42,Cox PH,0.8050569982166564,0.14687013784315733
+our preprocessing (with post-baseline),42,Weibull AFT,0.8040871705555875,0.145014996509665
+our preprocessing (with post-baseline),42,VaDeSC,0.8003572244866201,0.15831024166679125
+our preprocessing (with post-baseline),73,Cox PH,0.802629760476921,0.1481314469529575
+our preprocessing (with post-baseline),73,Weibull AFT,0.8018595697071261,0.14630359911468524
+our preprocessing (with post-baseline),73,VaDeSC,0.7769537253551108,0.15875895120962782
+our preprocessing (with post-baseline),666,Cox PH,0.8088435715071255,0.15023615253220618
+our preprocessing (with post-baseline),666,Weibull AFT,0.808217824125311,0.14851205328401385
+our preprocessing (with post-baseline),666,VaDeSC,0.7958399979953811,0.15592177973909022
+our preprocessing (with post-baseline),777,Cox PH,0.7983386154062236,0.1543213047483741
+our preprocessing (with post-baseline),777,Weibull AFT,0.7982815996128488,0.15156665240831635
+our preprocessing (with post-baseline),777,VaDeSC,0.7907791555821938,0.1621259003294039
+our preprocessing (with post-baseline),1009,Cox PH,0.7924059821141698,0.16060824501346507
+our preprocessing (with post-baseline),1009,Weibull AFT,0.7960235359593735,0.15608972296306092
+our preprocessing (with post-baseline),1009,VaDeSC,0.7967910430671417,0.1617861043271045
+"official preprocessing, baseline-only",42,Cox PH,0.7319598344580086,0.17157356743542101
+"official preprocessing, baseline-only",42,Weibull AFT,0.7291178296821277,0.17349167295924098
+"official preprocessing, baseline-only",42,VaDeSC,0.6746930279249536,0.1944793855940446
+"official preprocessing, baseline-only",73,Cox PH,0.7190439553651153,0.18171751954999488
+"official preprocessing, baseline-only",73,Weibull AFT,0.7144894899111008,0.1838591711874894
+"official preprocessing, baseline-only",73,VaDeSC,0.6409525627993957,0.21005317718736602
+"official preprocessing, baseline-only",666,Cox PH,0.7390231954064892,0.17816632667568538
+"official preprocessing, baseline-only",666,Weibull AFT,0.7371092325920525,0.18019078736878644
+"official preprocessing, baseline-only",666,VaDeSC,0.6937517088953701,0.1921732610384097
+"official preprocessing, baseline-only",777,Cox PH,0.7241765015997166,0.18028848469951603
+"official preprocessing, baseline-only",777,Weibull AFT,0.7227009129681646,0.18123664103070303
+"official preprocessing, baseline-only",777,VaDeSC,0.6812226465198145,0.20035403238720137
+"official preprocessing, baseline-only",1009,Cox PH,0.7274632778591692,0.18023387797168258
+"official preprocessing, baseline-only",1009,Weibull AFT,0.7244207037701581,0.18234708578739817
+"official preprocessing, baseline-only",1009,VaDeSC,0.6629615302309503,0.20356226023724328
