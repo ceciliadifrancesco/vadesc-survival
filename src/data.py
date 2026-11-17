@@ -41,6 +41,7 @@ class SurvData:
     clusters_true_tr: np.ndarray | None = None
     clusters_true_va: np.ndarray | None = None
     clusters_true_te: np.ndarray | None = None
+    idx: dict = None  # row indices of each split in the original data
 
     @property
     def y_tr(self):
@@ -51,17 +52,26 @@ class SurvData:
         return Surv.from_arrays(self.e_te.astype(bool), self.t_te)
 
 
-def make_splits(X, t, e, cat_cols, name, seed=42, test_size=0.2, val_size=0.1):
-    """Stratified train/val/test split. Imputation and scaling are fit on train only."""
+def make_splits(X, t, e, cat_cols, name, seed=42, test_size=0.2, val_size=0.1, keep_missing=False):
+    """Stratified train/val/test split. Imputation and scaling are fit on train only.
+
+    keep_missing: leave numeric missing values as NaN (scaled, not imputed); categorical
+    missing values become their own "missing" category.
+    """
     idx = np.arange(len(t))
     idx_trva, idx_te = train_test_split(idx, test_size=test_size, stratify=e, random_state=seed)
     idx_tr, idx_va = train_test_split(idx_trva, test_size=val_size / (1 - test_size),
                                       stratify=e[idx_trva], random_state=seed)
     num_cols = [c for c in X.columns if c not in cat_cols]
+    if keep_missing:
+        num_pipe = StandardScaler()  # ignores NaN when fitting, keeps NaN when transforming
+        cat_imputer = SimpleImputer(strategy="constant", fill_value="missing")
+    else:
+        num_pipe = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+        cat_imputer = SimpleImputer(strategy="most_frequent")
     pre = ColumnTransformer([
-        ("num", make_pipeline(SimpleImputer(strategy="median"), StandardScaler()), num_cols),
-        ("cat", make_pipeline(SimpleImputer(strategy="most_frequent"),
-                              OneHotEncoder(handle_unknown="ignore", sparse_output=False)), cat_cols),
+        ("num", num_pipe, num_cols),
+        ("cat", make_pipeline(cat_imputer, OneHotEncoder(handle_unknown="ignore", sparse_output=False)), cat_cols),
     ]).fit(X.iloc[idx_tr])
 
     def transform(i):
@@ -70,7 +80,8 @@ def make_splits(X, t, e, cat_cols, name, seed=42, test_size=0.2, val_size=0.1):
     return SurvData(name, transform(idx_tr), transform(idx_va), transform(idx_te),
                     t[idx_tr], t[idx_va], t[idx_te], e[idx_tr], e[idx_va], e[idx_te],
                     [f.split("__")[1] for f in pre.get_feature_names_out()],
-                    X.iloc[idx_te].reset_index(drop=True))
+                    X.iloc[idx_te].reset_index(drop=True),
+                    idx={"tr": idx_tr, "va": idx_va, "te": idx_te})
 
 
 def load_support_raw():
@@ -81,7 +92,7 @@ def load_support_raw():
     return pd.read_csv(path, index_col=0)
 
 
-def load_support(drop_post_baseline=False, seed=42):
+def load_support(drop_post_baseline=False, seed=42, keep_missing=False):
     raw = load_support_raw()
     t = raw["d.time"].to_numpy(float)
     e = raw["death"].to_numpy(int)
@@ -92,11 +103,11 @@ def load_support(drop_post_baseline=False, seed=42):
     cat = [c for c in SUPPORT_CAT if c in X]
     X[cat] = X[cat].astype(object)
     name = "SUPPORT (baseline-only)" if drop_post_baseline else "SUPPORT"
-    return make_splits(X, t, e, cat, name, seed)
+    return make_splits(X, t, e, cat, name, seed, keep_missing=keep_missing)
 
 
-def load_sksurv(name, seed=42):
-    """FLChain, GBSG2 or WHAS500, bundled with scikit-survival."""
+def load_sksurv(name, seed=42, keep_missing=False):
+    """FLChain, GBSG2 or WHAS500, bundled with scikit-survival. Only FLChain has missing values (creatinine)."""
     from sksurv.datasets import load_flchain, load_gbsg2, load_whas500
 
     X, y = {"FLChain": load_flchain, "GBSG2": load_gbsg2, "WHAS500": load_whas500}[name]()
@@ -106,7 +117,7 @@ def load_sksurv(name, seed=42):
     cat = list(X.select_dtypes(exclude="number").columns)
     X[cat] = X[cat].astype(object)
     return make_splits(X.reset_index(drop=True), y[time_field].astype(float),
-                       y[event_field].astype(int), cat, name, seed)
+                       y[event_field].astype(int), cat, name, seed, keep_missing=keep_missing)
 
 
 def load_simulated(
