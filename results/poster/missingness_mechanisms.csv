@@ -1,0 +1,25 @@
+method,mechanism,C-index | mean,C-index | std,IBS | mean,IBS | std,ARI | mean,ARI | std
+Cox (mean imp.),MAR,0.729,0.025,0.18,0.009,,
+Cox (mean imp.),MCAR,0.695,0.035,0.192,0.011,,
+Cox (mean imp.),MNAR,0.696,0.033,0.193,0.009,,
+Cox (mean imp.),none,0.727,0.026,0.18,0.011,,
+Cox (+mask),MAR,0.729,0.025,0.18,0.009,,
+Cox (+mask),MCAR,0.691,0.035,0.193,0.011,,
+Cox (+mask),MNAR,0.727,0.031,0.181,0.01,,
+Cox (+mask),none,0.727,0.026,0.18,0.011,,
+VaDeSC (mean imp.),MAR,0.727,0.013,0.181,0.007,0.395,0.115
+VaDeSC (mean imp.),MCAR,0.714,0.022,0.185,0.008,0.361,0.1
+VaDeSC (mean imp.),MNAR,0.715,0.026,0.186,0.012,0.374,0.078
+VaDeSC (mean imp.),none,0.743,0.013,0.175,0.006,0.536,0.198
+VaDeSC (+mask input),MAR,0.704,0.045,0.19,0.014,0.526,0.131
+VaDeSC (+mask input),MCAR,0.702,0.03,0.188,0.009,0.44,0.093
+VaDeSC (+mask input),MNAR,0.711,0.03,0.184,0.011,0.43,0.109
+VaDeSC (+mask input),none,0.72,0.025,0.181,0.008,0.511,0.179
+MissVaDeSC,MAR,0.715,0.038,0.184,0.014,0.458,0.192
+MissVaDeSC,MCAR,0.718,0.028,0.184,0.013,0.486,0.13
+MissVaDeSC,MNAR,0.729,0.026,0.179,0.009,0.439,0.104
+MissVaDeSC,none,0.738,0.025,0.176,0.008,0.578,0.163
+MissVaDeSC + mask model,MAR,0.706,0.039,0.186,0.013,0.461,0.207
+MissVaDeSC + mask model,MCAR,0.712,0.027,0.186,0.013,0.492,0.141
+MissVaDeSC + mask model,MNAR,0.711,0.03,0.186,0.011,0.432,0.109
+MissVaDeSC + mask model,none,0.738,0.022,0.176,0.008,0.573,0.165

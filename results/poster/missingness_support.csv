@@ -1,0 +1,7 @@
+method,C-index | mean,C-index | std,IBS | mean,IBS | std,log-rank chi2 | mean,log-rank chi2 | std
+Cox (mean imp.),0.733,0.0,0.174,0.0,,
+Cox (+mask),0.734,0.0,0.175,0.0,,
+VaDeSC (mean imp.),0.688,0.018,0.189,0.004,419.795,49.201
+VaDeSC (+mask input),0.658,0.012,0.198,0.004,369.906,46.258
+MissVaDeSC,0.683,0.008,0.191,0.001,423.063,41.776
+MissVaDeSC + mask model,0.657,0.007,0.2,0.004,369.494,29.431

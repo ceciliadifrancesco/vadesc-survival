@@ -1,8 +1,16 @@
-torch>=2.2
-numpy
-pandas
-scikit-learn>=1.2
-scikit-survival>=0.22
-lifelines
-matplotlib
-jupyter
+# Versions used for the results in the report (Python 3.12, Windows 11, CPU).
+# torch: any 2.x build works (CPU or CUDA); the code uses a GPU automatically if available.
+torch==2.14.1
+numpy==2.5.3
+pandas==2.3.3
+scipy==1.18.1
+scikit-learn==1.9.1
+scikit-survival==0.28.0
+lifelines==0.30.3
+matplotlib==3.11.2
+jupyter==1.1.1
+ipykernel==7.4.0
+nbclient==0.11.0
+nbconvert==7.17.1
+beautifulsoup4==4.15.0  # scripts/collect_poster_results.py
+PyYAML==6.0.3
