@@ -23,7 +23,9 @@ pip install -r requirements.txt
 src/
   data.py       loading and preprocessing
   vadesc.py     model and training
-  baselines.py  Cox PH, random survival forest, Weibull AFT
+  baselines.py  Cox PH, random survival forest, Weibull AFT, DSM
+  ssc.py        semi-supervised clustering (Bair & Tibshirani)
+  dsm/          Deep Survival Machines, official code (auton-survival, MIT)
   metrics.py    C-index, integrated Brier score, log-rank test
   simulate.py   synthetic data (port of the official simulation code)
   missing.py    missingness simulation and missingness-aware VaDeSC (MissVaDeSC)
@@ -41,11 +43,13 @@ notebooks/
   05_vae_vadesc_on_VAE_imputed_support.ipynb  VaDeSC on VAE-imputed SUPPORT
   06_missingness.ipynb                        missingness on simulated data and SUPPORT
   07_controlled_missingness.ipynb             values removed from GBSG2/WHAS500, FLChain
+  08_ssc_baseline.ipynb                       semi-supervised clustering baseline
+  09_dsm_baseline.ipynb                       Deep Survival Machines baseline
+  10_imputation_comparison.ipynb              median vs VAE imputation for VaDeSC (3 splits, 5 seeds)
   11_cluster_interpretation.ipynb             clinical description of the VaDeSC clusters on SUPPORT
   12_poster_figures.ipynb                     poster figures (from results/poster/, saved to figures/)
   13_paper_setup.ipynb                        the paper's SUPPORT setup: why its C-index is higher than ours
   14_robustness.ipynb                         number of clusters, survival distribution, stability across splits
-```
 
 Run notebooks from the `notebooks/` folder.
 
