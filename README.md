@@ -50,6 +50,7 @@ notebooks/
   12_poster_figures.ipynb                     poster figures (from results/poster/, saved to figures/)
   13_paper_setup.ipynb                        the paper's SUPPORT setup: why its C-index is higher than ours
   14_robustness.ipynb                         number of clusters, survival distribution, stability across splits
+  15_missingness_support_splits.ipynb         all ways of handling missing values on SUPPORT (3 splits, 5 seeds)
 
 Run notebooks from the `notebooks/` folder.
 
@@ -70,6 +71,7 @@ Times are for a CPU without a GPU.
 | Clinical interpretation of the clusters, comparison with Cox risk groups | 11 | 10 min |
 | Why the paper's SUPPORT C-index is higher (official preprocessing) | 13 | 20 min |
 | Number of clusters, survival distribution, stability across splits | 14 | 45 min |
+| Imputation and missingness-aware VaDeSC on SUPPORT (3 splits, 5 seeds) | 15 | 15 min (10 parallel jobs) |
 | Poster figures | `scripts/collect_poster_results.py`, then 12 | 1 min |
 
 Results that later notebooks reuse are saved in `results/` (e.g. `results/sim_by_seed.csv` from
