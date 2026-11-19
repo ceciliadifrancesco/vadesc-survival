@@ -1,0 +1,7 @@
+model,ARI | mean,ARI | std,NMI | mean,NMI | std,log-rank chi2 | mean,log-rank chi2 | std
+VaDeSC,0.323,0.105,,,24.291,22.967
+VaDE,0.125,0.074,,,16.178,7.478
+k-means (all features),0.037,0.023,0.046,0.03,35.623,17.485
+SSC (val log-rank),0.018,0.013,0.021,0.014,306.239,50.725
+SSC (oracle),0.046,0.025,0.052,0.03,95.318,68.756
+"SSC (oracle, official ranking)",0.053,0.024,0.056,0.026,88.391,79.877

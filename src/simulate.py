@@ -33,12 +33,14 @@ def random_nonlin_map(n_in, n_out, n_hidden, rank=1000):
 
 def simulate_nonlin_profile_surv(p: int, n: int, k: int, latent_dim: int, p_cens: float, seed: int, p_c=None,
                                  balanced=False, clust_mean=True, clust_cov=True, isotropic=False, clust_coeffs=True,
-                                 clust_intercepts=True, weibull_k=1, xrange=(-5, 5), brange=(-1, 1)):
+                                 clust_intercepts=True, weibull_k=1, xrange=(-5, 5), brange=(-1, 1), return_event_time=False):
     """Heterogeneous survival profiles with nonlinear covariates (datasets/simulations.py).
 
     Covariates are generated from latent features using an MLP decoder.
     Returns X, t, d, c, Z, mlp_dec, means, cov_mats, coeffs, intercepts
     (d == 1 if event, 0 if censored; c = true cluster labels).
+    return_event_time=True also returns the uncensored event times (used to simulate
+    missingness that depends on survival).
     """
     np.random.seed(seed)
 
@@ -121,9 +123,13 @@ def simulate_nonlin_profile_surv(p: int, n: int, k: int, latent_dim: int, p_cens
         t_l = weibull_min.rvs(weibull_k, loc=0, scale=logexps_l, size=n_l)
         t[c == l] = t_l
 
+    t_event = t.copy()
+
     # Censoring (d == 1 if event; 0 if censored)
     d = (uniform(0, 1, (n, )) >= p_cens) * 1.0
     t_cens = uniform(0, t, (n, ))
     t[d == 0] = t_cens[d == 0]
 
+    if return_event_time:
+        return X, t, d, c, Z, mlp_dec, means, cov_mats, coeffs, intercepts, t_event
     return X, t, d, c, Z, mlp_dec, means, cov_mats, coeffs, intercepts
