@@ -52,11 +52,15 @@ class SurvData:
         return Surv.from_arrays(self.e_te.astype(bool), self.t_te)
 
 
-def make_splits(X, t, e, cat_cols, name, seed=42, test_size=0.2, val_size=0.1, keep_missing=False):
+def make_splits(X, t, e, cat_cols, name, seed=42, test_size=0.2, val_size=0.1, keep_missing=False,
+                num_fill="median", cat_fill="most_frequent"):
     """Stratified train/val/test split. Imputation and scaling are fit on train only.
 
     keep_missing: leave numeric missing values as NaN (scaled, not imputed); categorical
     missing values become their own "missing" category.
+    num_fill: "median" (impute, then standardise) or "mean" (standardise, then fill with 0 = the
+              training mean). Ignored if keep_missing.
+    cat_fill: "most_frequent" or "missing" (own category). Ignored if keep_missing.
     """
     idx = np.arange(len(t))
     idx_trva, idx_te = train_test_split(idx, test_size=test_size, stratify=e, random_state=seed)
@@ -67,8 +71,13 @@ def make_splits(X, t, e, cat_cols, name, seed=42, test_size=0.2, val_size=0.1, k
         num_pipe = StandardScaler()  # ignores NaN when fitting, keeps NaN when transforming
         cat_imputer = SimpleImputer(strategy="constant", fill_value="missing")
     else:
-        num_pipe = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
-        cat_imputer = SimpleImputer(strategy="most_frequent")
+        assert num_fill in ("median", "mean") and cat_fill in ("most_frequent", "missing")
+        if num_fill == "median":
+            num_pipe = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+        else:  # same values as keep_missing followed by filling NaN with 0
+            num_pipe = make_pipeline(StandardScaler(), SimpleImputer(strategy="constant", fill_value=0.0))
+        cat_imputer = (SimpleImputer(strategy="most_frequent") if cat_fill == "most_frequent"
+                       else SimpleImputer(strategy="constant", fill_value="missing"))
     pre = ColumnTransformer([
         ("num", num_pipe, num_cols),
         ("cat", make_pipeline(cat_imputer, OneHotEncoder(handle_unknown="ignore", sparse_output=False)), cat_cols),
@@ -92,7 +101,7 @@ def load_support_raw():
     return pd.read_csv(path, index_col=0)
 
 
-def load_support(drop_post_baseline=False, seed=42, keep_missing=False):
+def load_support(drop_post_baseline=False, seed=42, keep_missing=False, num_fill="median", cat_fill="most_frequent"):
     raw = load_support_raw()
     t = raw["d.time"].to_numpy(float)
     e = raw["death"].to_numpy(int)
@@ -103,7 +112,7 @@ def load_support(drop_post_baseline=False, seed=42, keep_missing=False):
     cat = [c for c in SUPPORT_CAT if c in X]
     X[cat] = X[cat].astype(object)
     name = "SUPPORT (baseline-only)" if drop_post_baseline else "SUPPORT"
-    return make_splits(X, t, e, cat, name, seed, keep_missing=keep_missing)
+    return make_splits(X, t, e, cat, name, seed, keep_missing=keep_missing, num_fill=num_fill, cat_fill=cat_fill)
 
 
 def load_sksurv(name, seed=42, keep_missing=False):

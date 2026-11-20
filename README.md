@@ -51,6 +51,8 @@ notebooks/
   13_paper_setup.ipynb                        the paper's SUPPORT setup: why its C-index is higher than ours
   14_robustness.ipynb                         number of clusters, survival distribution, stability across splits
   15_missingness_support_splits.ipynb         all ways of handling missing values on SUPPORT (3 splits, 5 seeds)
+  16_support_10_splits.ipynb                  SUPPORT on 10 splits: leakage, imputation ablation, missingness variants, tuning
+  17_real_10_splits.ipynb                     FLChain, GBSG2, WHAS500 on 10 splits, with a tuned VaDeSC
 
 Run notebooks from the `notebooks/` folder.
 
@@ -72,6 +74,8 @@ Times are for a CPU without a GPU.
 | Why the paper's SUPPORT C-index is higher (official preprocessing) | 13 | 20 min |
 | Number of clusters, survival distribution, stability across splits | 14 | 45 min |
 | Imputation and missingness-aware VaDeSC on SUPPORT (3 splits, 5 seeds) | 15 | 15 min (10 parallel jobs) |
+| SUPPORT on 10 splits: leakage, imputation ablation, missingness variants, tuning | 16 | 1.5 h (8 parallel jobs) |
+| FLChain, GBSG2, WHAS500 on 10 splits, tuned VaDeSC | 17 | 2 h (6 parallel jobs) |
 | Poster figures | `scripts/collect_poster_results.py`, then 12 | 1 min |
 
 Results that later notebooks reuse are saved in `results/` (e.g. `results/sim_by_seed.csv` from
