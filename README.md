@@ -80,3 +80,7 @@ Times are for a CPU without a GPU.
 
 Results that later notebooks reuse are saved in `results/` (e.g. `results/sim_by_seed.csv` from
 notebook 03 is used by 08 and 09).
+
+## Licence
+
+The code written for this project is under the MIT licence (see `LICENSE`). Two parts come from other projects and keep their own terms: `src/dsm/` is copied from [auton-survival](https://github.com/autonlab/auton-survival) (MIT), and `src/simulate.py` is ported from the [official VaDeSC code](https://github.com/i6092467/vadesc) by Manduchi et al., which has no licence, so the rights to that code remain with its authors.
